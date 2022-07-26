@@ -20,6 +20,9 @@ contract Vingo is ERC721ACommon, ERC2981, FixedPriceSeller {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
+    mapping(address => uint256) TokenQuota;
+    mapping(address => uint256) TokensPurchased;
+
     constructor(
         string memory name,
         string memory symbol,
@@ -30,14 +33,16 @@ contract Vingo is ERC721ACommon, ERC2981, FixedPriceSeller {
     FixedPriceSeller(
         0.001 ether,
         // How to white list mints?
+        // TODO(odentorp): freeQuota is not working as expected. I was able to mint 5 NFTs even though freeQuota is 2. Similarly, totalInventory is 3, but I was able to mint 5.
+        // These issues to be fixed in a separate PR.
         Seller.SellerConfig({
             totalInventory: 3,
-            lockTotalInventory: true,
             maxPerAddress: 0,
             maxPerTx: 0,
             freeQuota: 2,
             lockFreeQuota: true,
-            reserveFreeQuota: true
+            reserveFreeQuota: true,
+            lockTotalInventory: true
         }),
         beneficiary
     )
