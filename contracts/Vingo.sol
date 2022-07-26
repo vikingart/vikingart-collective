@@ -8,7 +8,6 @@ import "@divergencetech/ethier/contracts/sales/FixedPriceSeller.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "hardhat/console.sol";
 // import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
 /// @title Collective NFT
@@ -49,7 +48,6 @@ contract Vingo is ERC721ACommon, ERC2981, FixedPriceSeller {
     function makeAnEpicNFT() public {
      // Get the current tokenId, this starts at 0.
     uint256 newItemId = _tokenIds.current();
-console.log("minting,, ", newItemId);
      // Actually mint the NFT to the sender using msg.sender.
     _safeMint(msg.sender, newItemId);
 
