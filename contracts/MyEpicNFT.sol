@@ -5,7 +5,6 @@ pragma solidity ^0.8.9;
 // We first import some OpenZeppelin Contracts.
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "hardhat/console.sol";
 
 //const tokenURI="https://www.vikingart.com/images/vikingart-card.svg";
 
@@ -19,7 +18,6 @@ contract MyEpicNFT is ERC721URIStorage {
 
   // We need to pass the name of our NFTs token and its symbol.
   constructor() ERC721 ("Square dude running", "SQUARE") {
-    console.log("This is my NFT contract. Woah!");
   }
 
   // A function our user will hit to get their NFT.

@@ -1,0 +1,11 @@
+dependencies:
+  - "OpenZeppelin/openzeppelin-contracts@4.7.1"
+  - "divergencetech/ethier@0.32.0"
+  - "chiru-labs/ERC721A@4.2.0"
+
+compiler:
+  solc:
+    remappings:
+      - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.7.1"
+      - "@divergencetech/ethier=divergencetech/ethier@0.32.0"
+      - "erc721a=chiru-labs/ERC721A@4.2.0"
