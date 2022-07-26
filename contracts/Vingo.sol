@@ -57,7 +57,7 @@ contract Vingo is ERC721ACommon, ERC2981, FixedPriceSeller {
 
     /// @notice Entry point for purchase of a single token.
     function buy() external payable {
-        Seller._purchase(msg.sender, 1);
+        _purchase(msg.sender, 1);
     }
 
     /**
