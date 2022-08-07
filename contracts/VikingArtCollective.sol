@@ -13,8 +13,15 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract VikingArtCollective is ERC721ACommon, BaseTokenURI, ERC2981, FixedPriceSeller {
     using Strings for uint256;
 
-    mapping(address => uint256) TokenQuota;
-    mapping(address => uint256) TokensPurchased;
+    mapping(address => bool) Whitelist;
+    /**
+    @notice Flag indicating that public minting is open.
+     */
+    bool public publicMinting;
+
+
+    event AddedMemberToWhitelist(address indexed member);
+    event RemovedMemberFromWhitelist(address indexed member);
 
     constructor(
         string memory name,
@@ -49,6 +56,10 @@ contract VikingArtCollective is ERC721ACommon, BaseTokenURI, ERC2981, FixedPrice
         uint256 num,
         bool
     ) internal override {
+        if (!publicMinting) {
+            require(Whitelist[to], "Mint is not yet public and member is not on whitelist");
+            delete Whitelist[to];
+        }
         _safeMint(to, num);
     }
 
@@ -70,10 +81,6 @@ contract VikingArtCollective is ERC721ACommon, BaseTokenURI, ERC2981, FixedPrice
     //     _purchase(to, 1, price);
     // }
 
-    /**
-    @notice Flag indicating that public minting is open.
-     */
-    bool public publicMinting;
 
     /**
     @notice Set the `publicMinting` flag.
@@ -135,8 +142,36 @@ contract VikingArtCollective is ERC721ACommon, BaseTokenURI, ERC2981, FixedPrice
         // - IERC721: 0x80ac58cd
         // - IERC721Metadata: 0x5b5e139f
         // - IERC2981: 0x2a55205a
-        return 
-            ERC721A.supportsInterface(interfaceId) || 
+        return
+            ERC721A.supportsInterface(interfaceId) ||
             ERC2981.supportsInterface(interfaceId);
+    }
+
+    function addMemberToWhitelist(address member) external onlyOwner {
+        Whitelist[member] = true;
+        emit AddedMemberToWhitelist(member);
+    }
+
+    function batchAddMembersToWhitelist(address[] memory members) external onlyOwner {
+        for (uint256 i = 0; i < members.length; i++) {
+            Whitelist[members[i]] = true;
+            emit AddedMemberToWhitelist(members[i]);
+        }
+    }
+
+    function removeMemberFromWhitelist(address member) external onlyOwner {
+        Whitelist[member] = false;
+        emit RemovedMemberFromWhitelist(member);
+    }
+
+    function batchRemoveMembersFromWhitelist(address[] memory members) external onlyOwner {
+        for (uint256 i = 0; i < members.length; i++) {
+            Whitelist[members[i]] = false;
+            emit RemovedMemberFromWhitelist(members[i]);
+        }
+    }
+
+    function isMemberOnWhitelist(address member) external view returns (bool) {
+        return Whitelist[member];
     }
 }
