@@ -14,11 +14,25 @@ contract VikingArtCollective is ERC721ACommon, BaseTokenURI, ERC2981, FixedPrice
     using Strings for uint256;
 
     mapping(address => bool) Whitelist;
+    mapping(address => bool) AlreadyMinted;
+    
     /**
     @notice Flag indicating that public minting is open.
      */
     bool public publicMinting;
+    
+    /**
+    @notice Flag indicating that public minting is open.
+     */
+    bool public whitelistMinting;
 
+    /** 
+    @notice internal struct used for getting allow list info for a specific address
+     */
+    struct WhitelistInfo {
+        bool onList;
+        bool alreadyMinted;
+    }
 
     event AddedMemberToWhitelist(address indexed member);
     event RemovedMemberFromWhitelist(address indexed member);
@@ -32,15 +46,15 @@ contract VikingArtCollective is ERC721ACommon, BaseTokenURI, ERC2981, FixedPrice
     ERC721ACommon(name, symbol)
     BaseTokenURI("")
     FixedPriceSeller(
-        0.0001 ether,
+        0.0001 ether, 
         Seller.SellerConfig({
-            totalInventory: 100,
+            totalInventory: 1000,
             maxPerAddress: 0,
             maxPerTx: 0,
-            freeQuota: 10,
+            freeQuota: 75,
             lockFreeQuota: false,
             reserveFreeQuota: true,
-            lockTotalInventory: true
+            lockTotalInventory: false  /// for testing only
         }),
         beneficiary
     )
@@ -56,37 +70,34 @@ contract VikingArtCollective is ERC721ACommon, BaseTokenURI, ERC2981, FixedPrice
         uint256 num,
         bool
     ) internal override {
-        if (!publicMinting) {
-            require(Whitelist[to], "Mint is not yet public and member is not on whitelist");
-            delete Whitelist[to];
-        }
         _safeMint(to, num);
     }
 
     /**
-    @notice Mint as an address on one of the early-access lists.
+    @notice public method for whitelist minting
      */
-     // TODO: handle allow list minting
-    // function mint(
-    //     address to,
-    //     uint256 price,
-    //     bytes32 nonce,
-    //     bytes calldata sig
-    // ) external payable {
-    //     signers.requireValidSignature(
-    //         signaturePayload(to, price, nonce),
-    //         sig,
-    //         usedMessages
-    //     );
-    //     _purchase(to, 1, price);
-    // }
-
+    function mint(
+        address to
+    ) external payable {
+        require(whitelistMinting, "Whitelist minting is not enabled");
+        require(Whitelist[to], "Address is not on the whitelist");
+        delete Whitelist[to];
+        AlreadyMinted[to] = true;
+        _purchase(to, 1);
+    }
 
     /**
     @notice Set the `publicMinting` flag.
      */
     function setPublicMinting(bool _publicMinting) external onlyOwner {
         publicMinting = _publicMinting;
+    }
+
+    /**
+    @notice Set the `publicMinting` flag.
+     */
+    function setWhitelistMinting(bool _whitelistMinting) external onlyOwner {
+        whitelistMinting = _whitelistMinting;
     }
 
     /**
@@ -134,6 +145,9 @@ contract VikingArtCollective is ERC721ACommon, BaseTokenURI, ERC2981, FixedPrice
         _setDefaultRoyalty(receiver, feeBasisPoints);
     }
 
+    /**
+    @notice standard method for verify interface implementations
+     */
     function supportsInterface(
         bytes4 interfaceId
     ) public view virtual override(ERC721ACommon, ERC2981) returns (bool) {
@@ -147,11 +161,17 @@ contract VikingArtCollective is ERC721ACommon, BaseTokenURI, ERC2981, FixedPrice
             ERC2981.supportsInterface(interfaceId);
     }
 
+    /**
+    @notice Add an address to be whitelisted for minting before public mint is enabled
+    */
     function addMemberToWhitelist(address member) external onlyOwner {
         Whitelist[member] = true;
         emit AddedMemberToWhitelist(member);
     }
 
+    /**
+    @notice Add addresses in buld to be whitelisted
+    */
     function batchAddMembersToWhitelist(address[] memory members) external onlyOwner {
         for (uint256 i = 0; i < members.length; i++) {
             Whitelist[members[i]] = true;
@@ -159,19 +179,43 @@ contract VikingArtCollective is ERC721ACommon, BaseTokenURI, ERC2981, FixedPrice
         }
     }
 
+    /**
+    @notice Remove a single address in from the whitelisted
+    */
     function removeMemberFromWhitelist(address member) external onlyOwner {
-        Whitelist[member] = false;
+        delete Whitelist[member];
         emit RemovedMemberFromWhitelist(member);
     }
 
+    /**
+    @notice Remove addresses in bulk from the whitelisted
+    */
     function batchRemoveMembersFromWhitelist(address[] memory members) external onlyOwner {
         for (uint256 i = 0; i < members.length; i++) {
-            Whitelist[members[i]] = false;
+            delete Whitelist[members[i]];
             emit RemovedMemberFromWhitelist(members[i]);
         }
     }
 
+    /**
+    @notice Check to see if an address is on the whitelist
+    */
     function isMemberOnWhitelist(address member) external view returns (bool) {
         return Whitelist[member];
+    }
+
+    /**
+    @notice Check to see if an address has already minted from the whitelist
+    */
+    function hasAlreadyMinted(address member) external view returns (bool) {
+        return AlreadyMinted[member];
+    }
+
+    /**
+    @notice Get whitelist info for an address will return both if they are on the list and if 
+    they have already minted.
+    */
+    function getWhitelistInfo(address member) external view returns (WhitelistInfo memory) {
+        return WhitelistInfo({ onList: Whitelist[member], alreadyMinted: AlreadyMinted[member] });
     }
 }
