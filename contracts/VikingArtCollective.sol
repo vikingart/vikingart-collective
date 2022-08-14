@@ -22,12 +22,12 @@ contract VikingArtCollective is ERC721ACommon, BaseTokenURI, ERC2981, FixedPrice
     bool public publicMinting;
     
     /**
-    @notice Flag indicating that public minting is open.
+    @notice Flag indicating that whitelist minting is open.
      */
     bool public whitelistMinting;
 
     /** 
-    @notice internal struct used for getting allow list info for a specific address
+    @notice internal struct used for whitelist list info for a specific address
      */
     struct WhitelistInfo {
         bool onList;
@@ -46,7 +46,7 @@ contract VikingArtCollective is ERC721ACommon, BaseTokenURI, ERC2981, FixedPrice
     ERC721ACommon(name, symbol)
     BaseTokenURI("")
     FixedPriceSeller(
-        0.0001 ether, 
+        1 ether, 
         Seller.SellerConfig({
             totalInventory: 1000,
             maxPerAddress: 0,
