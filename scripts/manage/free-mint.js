@@ -13,21 +13,16 @@ const provider = new ethers.providers.AlchemyProvider(NETWORK, API_KEY);
 const signer = new ethers.Wallet(PRIVATE_KEY, provider);
 const vartContract = new ethers.Contract(CONTRACT_ADDRESS, contractSpec.abi, signer);
 
-
-// const BASE_URI="https://www.vikingart.com/collective/metadata.json?token_id=";
-const BASE_URI="https://metadata.vikingart.com/collective/metadata.json?token_id=";
+const DESTINATION_WALLET="0xC32DA524AFB22d3039c720CadFFF82a30E6C3460";
+const AMOUNT=1;
 
 async function main() {
   console.log("Contract",  CONTRACT_ADDRESS);
 
-  const baseTokenURIBefore = await vartContract.baseTokenURI();
-  console.log("baseTokenURI before: ", baseTokenURIBefore);
-  if (baseTokenURIBefore !== BASE_URI) {
-    console.log("new baseTokenURI: ", BASE_URI)
-    const tx = await vartContract.setBaseTokenURI(BASE_URI);
-    await tx.wait();
-  } else { console.log("no change")}
-  const baseTokenURI = await vartContract.baseTokenURI();
-  console.log("baseTokenURI after: ", baseTokenURI);
+  console.log(`Minting ${AMOUNT} token to ${DESTINATION_WALLET} free of charge`);
+  let txn1 = await vartContract.purchaseFreeOfCharge(DESTINATION_WALLET, AMOUNT);
+  await txn1.wait()
+  console.log("Done");
+
 }
 main();

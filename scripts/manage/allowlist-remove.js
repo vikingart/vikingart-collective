@@ -13,21 +13,22 @@ const provider = new ethers.providers.AlchemyProvider(NETWORK, API_KEY);
 const signer = new ethers.Wallet(PRIVATE_KEY, provider);
 const vartContract = new ethers.Contract(CONTRACT_ADDRESS, contractSpec.abi, signer);
 
-
-// const BASE_URI="https://www.vikingart.com/collective/metadata.json?token_id=";
-const BASE_URI="https://metadata.vikingart.com/collective/metadata.json?token_id=";
+const ADDRESS="0xf0140627F3bF4ab29AEeCE027194b9f82972265b";
 
 async function main() {
   console.log("Contract",  CONTRACT_ADDRESS);
+  
+  const isOnWhitelist = await vartContract.isMemberOnWhitelist(ADDRESS);
+  console.log("isOnWhitelist: ", isOnWhitelist);
 
-  const baseTokenURIBefore = await vartContract.baseTokenURI();
-  console.log("baseTokenURI before: ", baseTokenURIBefore);
-  if (baseTokenURIBefore !== BASE_URI) {
-    console.log("new baseTokenURI: ", BASE_URI)
-    const tx = await vartContract.setBaseTokenURI(BASE_URI);
+  if (isOnWhitelist) {
+    console.log("remove address from whitelist: ", ADDRESS)
+    const tx = await vartContract.removeMemberFromWhitelist(ADDRESS);
     await tx.wait();
   } else { console.log("no change")}
-  const baseTokenURI = await vartContract.baseTokenURI();
-  console.log("baseTokenURI after: ", baseTokenURI);
+  
+  const isStillOnWhitelist = await vartContract.isMemberOnWhitelist(ADDRESS);
+  console.log("isMemberOnWhitelist after: ", isStillOnWhitelist);
 }
+
 main();

@@ -4,10 +4,8 @@ require("dotenv").config({ path: ".env" });
 const API_KEY = process.env.API_KEY;
 const PRIVATE_KEY = process.env.RINKEBY_PRIVATE_KEY;
 const CONTRACT_ADDRESS = process.env.RINKEBY_CONTRACT_ADDRESS;
-const NETWORK='rinkeby';
+const NETWORK = process.env.NETWORK;
 
-console.log(API_KEY)
-console.log(CONTRACT_ADDRESS)
 const { ethers } = require("hardhat");
 const contractSpec = require("../../artifacts/contracts/VikingArtCollective.sol/VikingArtCollective.json");
 
@@ -15,9 +13,15 @@ const provider = new ethers.providers.AlchemyProvider(NETWORK, API_KEY);
 const signer = new ethers.Wallet(PRIVATE_KEY, provider);
 const vartContract = new ethers.Contract(CONTRACT_ADDRESS, contractSpec.abi, signer);
 
-const PRICE="1000000000000000000";
+
+// const PRICE="1000000000000000000"; // 1 ETH
+// const PRICE="750000000000000000"; // 0.75 ETH
+// const PRICE="850000000000000000"; // 0.85 ETH
+const PRICE="850000000000000";
 
 async function main() {
+  console.log("Contract",  CONTRACT_ADDRESS);
+  
   const priceBefore = (await vartContract.price()).toString();
   console.log("price before: ", priceBefore);
   console.log("price in ETH: ", ethers.utils.formatEther(priceBefore));
