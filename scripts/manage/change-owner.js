@@ -13,21 +13,19 @@ const provider = new ethers.providers.AlchemyProvider(NETWORK, API_KEY);
 const signer = new ethers.Wallet(PRIVATE_KEY, provider);
 const vartContract = new ethers.Contract(CONTRACT_ADDRESS, contractSpec.abi, signer);
 
-
-// const BASE_URI="https://www.vikingart.com/collective/metadata.json?token_id=";
-const BASE_URI="https://metadata.vikingart.com/collective/metadata.json?token_id=";
+const NEW_OWNER_ADDRESS="0x502D74D9c1d273248Cd47AA777af83a079E8865A";
 
 async function main() {
   console.log("Contract",  CONTRACT_ADDRESS);
 
-  const baseTokenURIBefore = await vartContract.baseTokenURI();
-  console.log("baseTokenURI before: ", baseTokenURIBefore);
-  if (baseTokenURIBefore !== BASE_URI) {
-    console.log("new baseTokenURI: ", BASE_URI)
-    const tx = await vartContract.setBaseTokenURI(BASE_URI);
+  const currentOwner = await vartContract.owner();
+  console.log("currentOwner: ", currentOwner);
+  if (currentOwner !== NEW_OWNER_ADDRESS) {
+    console.log("new owner: ", NEW_OWNER_ADDRESS)
+    const tx = await vartContract.transferOwnership(NEW_OWNER_ADDRESS);
     await tx.wait();
-  } else { console.log("no change")}
-  const baseTokenURI = await vartContract.baseTokenURI();
-  console.log("baseTokenURI after: ", baseTokenURI);
+  } else { console.log("no owner change")}
+  const owner = await vartContract.owner();
+  console.log("owner after: ", owner);
 }
 main();

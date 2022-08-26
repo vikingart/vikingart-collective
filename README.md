@@ -52,3 +52,6 @@ There are three methods in total to mint tokens, all of these can only mint once
 1. Once the switch to public minting is confirmed the whitelist minting can be turned off with `setWhitelistMinting(false)`
 1. Once all tokens are sold out the mint public minting can be disabled with `setPublicMinting(false)`
 1. 
+
+
+https://collective.vikingart.com/metadata/vikingart-pass/metadata.json?tokenId=1

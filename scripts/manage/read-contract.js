@@ -4,10 +4,8 @@ require("dotenv").config({ path: ".env" });
 const API_KEY = process.env.API_KEY;
 const PRIVATE_KEY = process.env.RINKEBY_PRIVATE_KEY;
 const CONTRACT_ADDRESS = process.env.RINKEBY_CONTRACT_ADDRESS;
-const NETWORK='rinkeby';
+const NETWORK = process.env.NETWORK;
 
-console.log(API_KEY)
-console.log(CONTRACT_ADDRESS)
 const { ethers } = require("hardhat");
 const contractSpec = require("../../artifacts/contracts/VikingArtCollective.sol/VikingArtCollective.json");
 
@@ -17,7 +15,13 @@ const provider = new ethers.providers.AlchemyProvider(NETWORK, API_KEY);
 const signer = new ethers.Wallet(PRIVATE_KEY, provider);
 const vartContract = new ethers.Contract(CONTRACT_ADDRESS, contractSpec.abi, signer);
 
+
 async function main() {
+  console.log("Contract",  CONTRACT_ADDRESS);
+
+  const currentOwner = await vartContract.owner();
+  console.log("currentOwner: ", currentOwner);
+  
   const name = await vartContract.name();
   console.log("name: ", name);
 
